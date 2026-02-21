@@ -44,4 +44,13 @@ public class AuthController {
             "message", "If the email exists, a password reset link has been sent"
         ));
     }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        String currentEmail = authentication.getName();
+        UserResponse response = authService.updateProfile(currentEmail, request);
+        return ResponseEntity.ok(response);
+    }
 }

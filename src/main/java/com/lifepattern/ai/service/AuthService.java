@@ -98,4 +98,29 @@ public class AuthService {
         // Log or send email here
         System.out.println("Password reset requested for: " + request.getEmail());
     }
+
+    @Transactional
+    public UserResponse updateProfile(String currentEmail, UpdateProfileRequest request) {
+        var user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+        
+        // Check if new email already exists (if email is being changed)
+        if (!user.getEmail().equals(request.getEmail())) {
+                if (userRepository.existsByEmail(request.getEmail())) {
+                throw new BadRequestException("Email already exists");
+                }
+                user.setEmail(request.getEmail());
+        }
+        
+        // Update name
+        user.setName(request.getName());
+        
+        userRepository.save(user);
+        
+        return UserResponse.builder()
+                .id(user.getId().toString())
+                .email(user.getEmail())
+                .name(user.getName())
+                .build();
+     }
 }
